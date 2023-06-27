@@ -10,28 +10,28 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
 
-    private sanitizeUser(user: User) {
-      return user.depopulate('password');
+  private sanitizeUser(user: User) {
+    return user.depopulate('password');
+  }
+
+  async create(userDetails: RegisterDetail) {
+    const { username } = userDetails;
+    if (!username || !userDetails.password) {
+      throw new HttpException(
+        'All credentials are required!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const user = await this.userModel.findOne({ username });
+    if (user) {
+      throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
     }
 
-    async create(userDetails: RegisterDetail) {
-      const { username } = userDetails;
-      if (!username || !userDetails.password) {
-        throw new HttpException(
-          'All credentials are required!',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      const user = await this.userModel.findOne({ username });
-      if (user) {
-        throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
-      }
+    const createdUser = new this.userModel(userDetails);
+    await createdUser.save();
 
-      const createdUser = new this.userModel(userDetails);
-      await createdUser.save();
-
-      return this.sanitizeUser(createdUser);
-    }
+    return this.sanitizeUser(createdUser);
+  }
 
   async findByLogin(userDetails: LoginDetail) {
     const { username, password } = userDetails;
@@ -57,5 +57,10 @@ export class UserService {
       'Invalid username or password',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async findByPayload(payload: any) {
+    const { username } = payload;
+    return await this.userModel.findOne({ username });
   }
 }
