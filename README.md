@@ -35,5 +35,5 @@ $ npm run test:e2e
 
 ## Stay in touch
 
-- Author - [Irumva Regis Dieu Merci](https://github/re-gis.com)
+- Author - [Irumva Regis Dieu Merci](https://www.linkedin.com/in/d-regis-9aa310255/)
 
